@@ -29,6 +29,11 @@
     "plugins": [
       "expo-router"
     ],
-    "scheme": "kickguild"
+    "scheme": "kickguild",
+    "extra": {
+      "eas": {
+        "projectId": "kick-guild-app"
+      }
+    }
   }
 }
