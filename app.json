@@ -30,6 +30,11 @@
       "expo-router"
     ],
     "scheme": "kickguild",
+    "updates": {
+      "enabled": true,
+      "checkAutomatically": "ON_LOAD",
+      "fallbackToCacheTimeout": 0
+    },
     "extra": {
       "eas": {
         "projectId": "kick-guild-app"
