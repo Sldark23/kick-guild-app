@@ -75,8 +75,26 @@ export default function ProfileScreen() {
         <TouchableOpacity style={styles.editButton} onPress={() => router.push('/edit-profile')}>
           <Text style={styles.editButtonText}>Editar Perfil</Text>
         </TouchableOpacity>
+        <TouchableOpacity style={styles.msgButton} onPress={() => router.push('/(tabs)/messages')}>
+          <Text style={styles.msgButtonText}>💬</Text>
+        </TouchableOpacity>
         <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
           <Text style={styles.logoutButtonText}>Sair</Text>
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.quickLinks}>
+        <TouchableOpacity style={styles.quickLink} onPress={() => router.push('/guilds')}>
+          <Text style={styles.quickLinkIcon}>🏰</Text>
+          <Text style={styles.quickLinkText}>Guildas</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.quickLink} onPress={() => router.push('/bookmarks')}>
+          <Text style={styles.quickLinkIcon}>🔖</Text>
+          <Text style={styles.quickLinkText}>Favoritos</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.quickLink} onPress={() => router.push('/settings')}>
+          <Text style={styles.quickLinkIcon}>⚙️</Text>
+          <Text style={styles.quickLinkText}>Config</Text>
         </TouchableOpacity>
       </View>
 
@@ -111,8 +129,14 @@ const styles = StyleSheet.create({
   actions: { flexDirection: 'row', padding: 15, gap: 10 },
   editButton: { flex: 1, backgroundColor: '#4f46e5', padding: 12, borderRadius: 8, alignItems: 'center' },
   editButtonText: { color: '#fff', fontWeight: '600' },
+  msgButton: { backgroundColor: '#e0e7ff', padding: 12, borderRadius: 8, alignItems: 'center', width: 50 },
+  msgButtonText: { fontSize: 20 },
   logoutButton: { backgroundColor: '#fee2e2', padding: 12, borderRadius: 8, alignItems: 'center' },
   logoutButtonText: { color: '#dc2626', fontWeight: '600' },
+  quickLinks: { flexDirection: 'row', paddingHorizontal: 15, gap: 10, marginBottom: 10 },
+  quickLink: { flex: 1, backgroundColor: '#f3f4f6', padding: 12, borderRadius: 10, alignItems: 'center' },
+  quickLinkIcon: { fontSize: 22, marginBottom: 4 },
+  quickLinkText: { fontSize: 12, fontWeight: '500', color: '#374151' },
   postsSection: { padding: 15 },
   sectionTitle: { fontSize: 16, fontWeight: '600', color: '#1f2937', marginBottom: 10 },
   postItem: { padding: 12, backgroundColor: '#f9fafb', borderRadius: 8, marginBottom: 8 },
