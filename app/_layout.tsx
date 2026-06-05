@@ -1,19 +1,27 @@
 import { Stack } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { View, ActivityIndicator } from 'react-native';
-import { getToken, getUser, clearToken, setUser } from '../lib/api';
+import { storage } from '../lib/storage';
+import { setApiToken } from '../lib/api';
 
 export default function RootLayout() {
   const [loading, setLoading] = useState(true);
-  const [token, setTokenState] = useState<string | null>(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
-    const checkAuth = async () => {
-      const t = getToken();
-      setTokenState(t);
-      setLoading(false);
-    };
-    checkAuth();
+    (async () => {
+      try {
+        const token = await storage.getToken();
+        if (token) {
+          setApiToken(token);
+          setIsLoggedIn(true);
+        }
+      } catch (e) {
+        console.error('RootLayout error:', e);
+      } finally {
+        setLoading(false);
+      }
+    })();
   }, []);
 
   if (loading) {
@@ -25,17 +33,8 @@ export default function RootLayout() {
   }
 
   return (
-    <Stack
-      screenOptions={{
-        headerShown: false,
-        contentStyle: { backgroundColor: '#fff' },
-      }}
-    >
-      {!token ? (
-        <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-      ) : (
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-      )}
+    <Stack screenOptions={{ headerShown: false }}>
+      {!isLoggedIn ? <Stack.Screen name="(auth)" /> : <Stack.Screen name="(tabs)" />}
     </Stack>
   );
 }

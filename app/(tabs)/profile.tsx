@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet, SafeAreaView, ActivityIndicator, Alert } from 'react-native';
 import { router } from 'expo-router';
-import { authApi, profileApi, setToken, clearToken, getUser } from '../../lib/api';
+import { authApi, profileApi, setApiToken } from '../../lib/api';
+import { storage } from '../../lib/storage';
 
 export default function ProfileScreen() {
   const [user, setUser] = useState<any>(null);
@@ -10,7 +11,7 @@ export default function ProfileScreen() {
 
   const fetchProfile = async () => {
     try {
-      const currentUser = getUser();
+      const currentUser = await storage.getUser();
       if (currentUser?.username) {
         const { data } = await profileApi.get(currentUser.username);
         setUser(data.user);
@@ -31,7 +32,8 @@ export default function ProfileScreen() {
     try {
       await authApi.logout();
     } catch (error) {}
-    clearToken();
+    setApiToken(null);
+    await storage.clear();
     router.replace('/(auth)/login');
   };
 

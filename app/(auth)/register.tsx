@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { router } from 'expo-router';
-import { authApi, setToken, setUser } from '../../lib/api';
+import { authApi, setApiToken } from '../../lib/api';
+import { storage } from '../../lib/storage';
 
 export default function RegisterScreen() {
   const [name, setName] = useState('');
@@ -25,8 +26,9 @@ export default function RegisterScreen() {
     setLoading(true);
     try {
       const { data } = await authApi.register(name, username, email, password, passwordConfirmation);
-      setToken(data.token);
-      setUser(data.user);
+      await storage.setToken(data.token);
+      setApiToken(data.token);
+      await storage.setUser(data.user);
       router.replace('/(tabs)');
     } catch (error: any) {
       const msg = error.response?.data?.message || error.response?.data?.error || 'Falha ao criar conta';

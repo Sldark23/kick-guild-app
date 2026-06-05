@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
-import { authApi, setToken, setUser } from '../../lib/api';
+import { authApi, setApiToken } from '../../lib/api';
+import { storage } from '../../lib/storage';
 
 export default function TwoFactorScreen() {
   const { userId } = useLocalSearchParams<{ userId: string }>();
@@ -17,8 +18,9 @@ export default function TwoFactorScreen() {
     setLoading(true);
     try {
       const { data } = await authApi.verifyTwoFactor(parseInt(userId), code);
-      setToken(data.token);
-      setUser(data.user);
+      await storage.setToken(data.token);
+      setApiToken(data.token);
+      await storage.setUser(data.user);
       router.replace('/(tabs)');
     } catch (error: any) {
       Alert.alert('Erro', error.response?.data?.error || 'Código inválido');

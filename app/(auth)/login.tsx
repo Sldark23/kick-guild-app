@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { router } from 'expo-router';
-import { authApi, setToken, setUser } from '../../lib/api';
+import { authApi, setApiToken } from '../../lib/api';
+import { storage } from '../../lib/storage';
 
 export default function LoginScreen() {
   const [login, setLogin] = useState('');
@@ -23,8 +24,9 @@ export default function LoginScreen() {
         return;
       }
 
-      setToken(data.token);
-      setUser(data.user);
+      await storage.setToken(data.token);
+      setApiToken(data.token);
+      await storage.setUser(data.user);
       router.replace('/(tabs)');
     } catch (error: any) {
       Alert.alert('Erro', error.response?.data?.error || 'Falha ao entrar');

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet, RefreshControl, TextInput, SafeAreaView, ActivityIndicator } from 'react-native';
 import { router } from 'expo-router';
-import { postsApi, getUser } from '../../lib/api';
+import { postsApi } from '../../lib/api';
 
 export default function FeedScreen() {
   const [posts, setPosts] = useState<any[]>([]);
