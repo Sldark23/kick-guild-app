@@ -1,31 +1,46 @@
 import { Platform } from 'react-native';
-import * as Notifications from 'expo-notifications';
-import * as Device from 'expo-device';
-import Constants from 'expo-constants';
 import { storage } from './storage';
 import axios from 'axios';
 
 const API_URL = 'https://kickguild.zeninhost.xyz/api';
+let Notifications: any = null;
+let Device: any = null;
+let Constants: any = null;
 
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: true,
-    shouldSetBadge: true,
-  }),
-});
+async function ensureModules() {
+  if (Notifications) return true;
+  try {
+    Notifications = await import('expo-notifications');
+    Device = await import('expo-device');
+    Constants = await import('expo-constants');
+    Notifications.default.setNotificationHandler({
+      handleNotification: async () => ({
+        shouldShowAlert: true,
+        shouldPlaySound: true,
+        shouldSetBadge: true,
+      }),
+    });
+    return true;
+  } catch (e) {
+    console.log('Push modules not available:', e);
+    return false;
+  }
+}
 
 export async function registerForPushNotifications(): Promise<string | null> {
-  if (!Device.isDevice) {
+  const ok = await ensureModules();
+  if (!ok) return null;
+
+  if (!Device.default.isDevice) {
     console.log('Push not supported on emulator');
     return null;
   }
 
-  const { status: existing } = await Notifications.getPermissionsAsync();
+  const { status: existing } = await Notifications.default.getPermissionsAsync();
   let finalStatus = existing;
 
   if (existing !== 'granted') {
-    const { status } = await Notifications.requestPermissionsAsync();
+    const { status } = await Notifications.default.requestPermissionsAsync();
     finalStatus = status;
   }
 
@@ -35,11 +50,10 @@ export async function registerForPushNotifications(): Promise<string | null> {
   }
 
   try {
-    const projectId = Constants.expoConfig?.extra?.eas?.projectId;
-    const tokenData = await Notifications.getExpoPushTokenAsync({ projectId });
+    const projectId = Constants.default.expoConfig?.extra?.eas?.projectId;
+    const tokenData = await Notifications.default.getExpoPushTokenAsync({ projectId });
     const token = tokenData.data;
 
-    // Send token to backend
     const storedToken = await storage.getToken();
     if (storedToken) {
       await axios.post(
@@ -49,11 +63,10 @@ export async function registerForPushNotifications(): Promise<string | null> {
       );
     }
 
-    // Android notification channel
     if (Platform.OS === 'android') {
-      await Notifications.setNotificationChannelAsync('default', {
+      await Notifications.default.setNotificationChannelAsync('default', {
         name: 'Notificações',
-        importance: Notifications.AndroidImportance.MAX,
+        importance: Notifications.default.AndroidImportance?.MAX || 5,
         vibrationPattern: [0, 250, 250, 250],
         lightColor: '#4f46e5',
       });
@@ -67,12 +80,15 @@ export async function registerForPushNotifications(): Promise<string | null> {
 }
 
 export async function unregisterPushToken(): Promise<void> {
+  const ok = await ensureModules();
+  if (!ok) return;
+
   try {
     const token = await storage.getToken();
     if (!token) return;
 
-    const projectId = Constants.expoConfig?.extra?.eas?.projectId;
-    const tokenData = await Notifications.getExpoPushTokenAsync({ projectId });
+    const projectId = Constants.default.expoConfig?.extra?.eas?.projectId;
+    const tokenData = await Notifications.default.getExpoPushTokenAsync({ projectId });
 
     await axios.post(
       `${API_URL}/push/unregister`,
@@ -85,11 +101,18 @@ export async function unregisterPushToken(): Promise<void> {
 }
 
 export function setupNotificationListeners(handleTap: (data: any) => void) {
-  // Handle notification tapped (app opened from notification)
-  const subTap = Notifications.addNotificationResponseReceivedListener(response => {
-    const data = response.notification.request.content.data;
-    handleTap(data);
-  });
+  const sub = { remove: () => {} };
 
-  return subTap;
+  (async () => {
+    const ok = await ensureModules();
+    if (!ok) return;
+
+    const subTap = Notifications.default.addNotificationResponseReceivedListener((response: any) => {
+      const data = response.notification.request.content.data;
+      handleTap(data);
+    });
+    sub.remove = () => subTap.remove();
+  })();
+
+  return sub;
 }
