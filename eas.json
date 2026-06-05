@@ -13,7 +13,7 @@
       "channel": "preview"
     },
     "production": {
-      "distribution": "store",
+      "distribution": "internal",
       "channel": "production"
     }
   },
