@@ -176,6 +176,13 @@ export const settingsApi = {
   confirmTwoFactor: (code: string) => api.post('/settings/2fa/confirm', { code }),
 };
 
+// Push Notifications
+export const pushApi = {
+  register: (token: string, platform?: string) => api.post('/push/register', { token, platform }),
+  unregister: (token: string) => api.post('/push/unregister', { token }),
+  vapidKey: () => api.get('/push/vapid-public-key'),
+};
+
 // Bot
 export const botApi = {
   post: (token: string, content: string, guild_id?: number, channel_id?: number) =>

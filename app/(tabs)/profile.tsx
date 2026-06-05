@@ -3,6 +3,7 @@ import { View, Text, FlatList, TouchableOpacity, StyleSheet, SafeAreaView, Activ
 import { router } from 'expo-router';
 import { authApi, profileApi, setApiToken } from '../../lib/api';
 import { storage } from '../../lib/storage';
+import { unregisterPushToken } from '../../lib/push';
 
 export default function ProfileScreen() {
   const [user, setUser] = useState<any>(null);
@@ -30,6 +31,7 @@ export default function ProfileScreen() {
 
   const handleLogout = async () => {
     try {
+      await unregisterPushToken();
       await authApi.logout();
     } catch (error) {}
     setApiToken(null);
